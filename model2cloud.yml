@@ -6,20 +6,21 @@ channels:
   - defaults
 dependencies:
   - python=3.9
-  - notebook                      # jupyter classic notebooks
-  - jupyter_contrib_nbextensions  # jupyter addons
-  - pynvim                        # neovim python provider, for neovim users
-  - jupytext                      # convert ipynb to python
-  - tqdm                          # progress bar
+  - notebook                        # jupyter classic notebooks
+  - jupyter_contrib_nbextensions    # jupyter addons
+  - pynvim                          # neovim python provider, for neovim users
+  - jupytext                        # convert ipynb to python
+  - tqdm                            # progress bar
   - pandas
   - scikit-learn
-  - category_encoders             # multiple encoding techniques in one cool library
+  - category_encoders               # multiple encoding techniques in one cool library
   - scipy
   - matplotlib
-  - plotly                        # interactive figures
+  - plotly                          # interactive figures
   - seaborn
   - pytorch
   - torchvision
   - fastai
   - xgboost
-  - optuna                        # hyperparameter optimizations
+  - optuna                          # hyperparameter optimizations
+  - pylama                          # python linting
