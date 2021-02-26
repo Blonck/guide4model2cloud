@@ -12,3 +12,17 @@ This contains:
     * AWS
     * Google cloud
     * Microsoft Azure
+
+
+# HowTos:
+
+## create conda environment
+```
+conda env create --file model2cloud
+```
+
+## update conda environment
+
+```
+conda env update --file model2cloud.yml
+```
