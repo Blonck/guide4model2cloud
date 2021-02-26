@@ -24,3 +24,5 @@ dependencies:
   - xgboost
   - optuna                          # hyperparameter optimizations
   - pylama                          # python linting
+  - fastapi                         # for the webapp
+  - uvicorn
