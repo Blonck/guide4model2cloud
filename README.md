@@ -22,16 +22,17 @@ dataset is quite imbalanced.
 
 The complete guide contains:
 1. Setting up the environment
-2. Rapid start to a working prototype
-7. (TODO) Creating a docker image for the API
-3. (TODO) Exploring the data
-5. (TODO) Setting up data pipelines via DVC [https://dvc.org/]
-6. (TODO) Developing an API for the model via fastapi [https://fastapi.tiangolo.com/]
-8. (TODO) Trying different models and tune hyperparameters
-9. (TODO) Deploying the model to
-    * AWS
-    * Google cloud
-    * Microsoft Azure
+2. Quickly to a functional prototype
+    a. Simple RandomForesetClassifier
+    b. FastAPI webapp [https://fastapi.tiangolo.com/]
+    c. Docker image
+3. (TODO) Setting up data pipelines via DVC [https://dvc.org/]
+4. (TODO) Exploring the data
+6. (TODO) Trying different models and tune hyperparameters via optuna [https://optuna.org/]
+7. (TODO) Deploying the model to
+    a. AWS
+    b. Google cloud
+    c. Microsoft Azure
 
 
 # Setting up the environment
@@ -97,24 +98,143 @@ This means, whenever you save your notebook, a plain python file is created or u
 
 ### Jupytext commit hook
 
-In principle, one could just commit the python to the git repository. There are
+In principle, one could commit the python to the git repository. There are
 much better suited for reviewing the code and creating comments. When somebody
 checks out the python file, the corresponding notebook is automatically
-created. However, to understand content of a notebook the generated images are
-quite crucial. As the ideas and findings presented in a notebook, are probably
-more important than the code itself, I find it important to have all the
+created. However, to understand the content of a notebook, the generated images are
+quite crucial. As the ideas and findings presented in a notebook are probably
+more important than the code itself, I find it essential to have all the
 generated output available in a review.
 
+This approach comes with two drawbacks. The git repository contains now all
+images from the notebooks, increases in size significantly. If you want to
+readable notebooks in the repository this is not avoidable. The second
+drawback is that the ipynb and python files could come out of sync, this one
+can prevent a pre-commit hook as given in `githooks/pre-commit`.
 
+To enable these githooks you can configure your hook path via:
+```
+git config core.hooksPath githooks/
+```
 
-## Jupyter notebooks
+# Quickly to a functional prototype
 
-# Rapid start to a working prototype
+So that is enough configuration for the beginning. The next part cares around
+creating a prototype, including a preliminary model and exposing it via a web
+API. The idea behind the preliminary model is to get as fast as possible to
+running code which serves two purposes:
+1. Give a baseline performance.
+2. Provide other teams/developers something against which they can develop
 
-## Fist look into the data
+Using the first model, one can already estimate how complex the final problem will be.
+For example, if you need a prediction with 90% accuracy for production and the
+preliminary model achieves already 85%, one could expect that this gap can be indeed
+closed with a decent amount of work. If the preliminary model only reaches 60% accuracy,
+it might be that you have a long way in front of you.
+
+A working prototype also helps when cooperating with other teams or developers.
+In the case, your prediction is used in a more complex application; others can already
+develop their solution (frontend or backend application) against your model.
+You can then improve your model iteratively, for example, in a Scrum or Kanban style.
+
+## First look into the data
+
+In general, one should strive for a deeper understanding of the data and it's
+context, which allows to tailer the model to the use case and quench out the
+last bit of performance.  However, the first model should be developed as fast
+as possible. Still, a minimum amount of exploratory data analysis is needed to
+generate any meaningful results.
+
+In `notebooks/01_FirstLookIntoData.ipynb` I check at least who the target
+variable looks like.  In particular, `data['y'].value_counts(normalize=True)`
+shows that the dataset is imbalanced, 11% positive cases. This must be
+respected even in the first prototype. In particular, the metric for the
+model must be chosen carefully. Accuracy will be certainly not a very useful.
+
+### NA's
+
+Luckily, there are not NA values in this dataset (`data.isna().sum()`).
+Otherwise, these have to be also handled for the prototype.
+
+### Categorical variables
+
+For the first model, I check that enough samples are present in the dataset for
+each class in each category, and I don't need to group these together, which
+only occur seldomly. 
+![Count classes](./images/CountClasses.png)
 
 ## First stupid model
 
-## First fastapi application
+The random forest in `notebooks/02_FirstModel.ipynb` is trained on 80% of the
+data and tested on the remaining 20%. To encode the categorical columns,
+I use the OneHotEncoder from category_encoders [https://contrib.scikit-learn.org/category_encoders/].
+
+For later experiments, the dataset must be split into a proper train,
+validation, and test set, but having a single test set is ... acceptable for
+the first model.
+
+For now, I use balanced accuracy to evaluate the model. Also, this needs a
+later revisit, but for now, the model achieves a balanced accuracy of 88%. Not
+bad, for almost no work.  In the last section of the notebook, the model is
+trained on the full dataset and saved as a pickle file for later usage.
+
+In the last section of the notebook, the model is trained on the full dataset
+and saved as a pickle file for later usage.
+
+## First FastAPI application
+
+The next step is to cast the ready model into an application. For that purpose, I use
+the fantastic FastAPI library [https://fastapi.tiangolo.com/]
+
+In `app/input.py`, I define the input data for the model. FastAPI automatically creates a schema from this using another
+fantastic python library: pydantic [https://pydantic-docs.helpmanual.io/].
+
+The actual app `app/simpleapp.py` mainly does two things.
+
+Firstly it loads in the stored pickle files. The custom unpickler is needed since the
+model is pickled within the notebook, and thus the context from which the app is executed
+would not find the corresponding python classes.
+```
+class CustomUnpickler(pickle.Unpickler):
+
+    def find_class(self, module, name):
+        try:
+            return super().find_class(__name__, name)
+        except AttributeError:
+            return super().find_class(module, name)
+
+encoder_file = 'model/simple_enc.pkl'
+model_file = 'model/simple_rf.pkl'
+
+logging.debug(f'Loading model from {model_file}')
+model = CustomUnpickler(open(model_file, 'rb')).load()
+encoder = CustomUnpickler(open(encoder_file, 'rb')).load()
+```
+
+The other relevant lines create the endpoint, transform the incoming data into a DataFrame,
+execute the model, and return the prediction.
+```
+@app.post('/predict')
+def predict(data: ClientDataSimple):
+    # transform dict to pandas DataFrame
+    data_as_dict = {key: [value] for key, value in data.dict().items()}
+    df = pd.DataFrame.from_dict(data_as_dict)
+    x = encoder.transform(df)
+    preds = model.predict(x)
+    preds = pd.Series(preds)
+
+    # transform result back to original presentation
+    preds = preds.map({0: 'no', 1: 'yes'})
+
+    return preds.to_json(orient='records')
+```
+
+The application is now started via executed in the app directory.
+```
+uvicorn simpleapp:app --reload
+```
+
+That's it. Even better, FastAPI also provides also an OpenAPI specification under `http://127.0.0.1:8000/openapi.json`
+and a Swagger UI under `http://127.0.0.1:8000/docs`, which one can use to test the API.
 
 ## Make API available via docker
