@@ -23,16 +23,16 @@ dataset is quite imbalanced.
 The complete guide contains:
 1. Setting up the environment
 2. Quickly to a functional prototype
-    a. Simple RandomForesetClassifier
-    b. FastAPI webapp [https://fastapi.tiangolo.com/]
-    c. Docker image
+    1. Simple RandomForesetClassifier
+    2. FastAPI webapp [https://fastapi.tiangolo.com/]
+    3. Docker image
 3. (TODO) Setting up data pipelines via DVC [https://dvc.org/]
 4. (TODO) Exploring the data
 6. (TODO) Trying different models and tune hyperparameters via optuna [https://optuna.org/]
 7. (TODO) Deploying the model to
-    a. AWS
-    b. Google cloud
-    c. Microsoft Azure
+    1. AWS
+    2. Google cloud
+    3. Microsoft Azure
 
 
 # Setting up the environment
