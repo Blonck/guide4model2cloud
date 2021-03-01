@@ -62,7 +62,8 @@ directly created from the yml file in this repo:
 ```bash
 mamba env create --file model2cloud.yml
 ```
-Now the environment is activated via:
+
+Now one can activate the environment via:
 ```bash
 conda activate model2cloud
 ```
@@ -81,10 +82,10 @@ mamba env update --file model2cloud.yml
 Jupytext is a tool to convert jupyter notebooks (ipynb) to plain python files,
 see [https://jupytext.readthedocs.io/en/latest/].
 
-Jupytext has three main use ases: applying linting to notebooks, editing
-notebook files with your favorite editors, and doing version control and enable
+Jupytext has three main use cases: applying linting to notebooks, editing
+notebook files with your preferred editor, doing version control, and enable
 code review on your notebooks. For this repo, the third point is the important
-one. Especially, in teams you might want to use code review before merging new
+one. Especially in teams, you might want to use code review before merging new
 code into the master.
 
 One can manually convert a notebook to a python file
@@ -92,7 +93,7 @@ via:
 ```bash
 jupytext --to py $notebook_file
 ```
-However, better is to enable the synchronization between the notebook via the jupyter UI.
+However, it is better to enable the synchronization between the notebook via the jupyter UI.
 For this project, the synchronization is enabled for notebooks the following line
 ```bash
 default_jupytext_formats = "ipynb,py:percent"
@@ -103,13 +104,13 @@ This means, whenever you save your notebook, a plain python file is created or u
 
 ### Jupytext commit hook
 
-In principle, one could commit the python to the git repository. There are
-much better suited for reviewing the code and creating comments. When somebody
-checks out the python file, the corresponding notebook is automatically
-created. However, to understand the content of a notebook, the generated images are
-quite crucial. As the ideas and findings presented in a notebook are probably
-more important than the code itself, I find it essential to have all the
-generated output available in a review.
+In principle, one could commit only the python code to the git repository.
+There are much better suited for reviewing the code and creating comments. When
+somebody checks out the python file, the corresponding notebook is
+automatically created. However, to understand the content of a notebook, the
+generated images are quite crucial. As the ideas and findings presented in a
+notebook are probably more important than the code itself, I find it essential
+to have all the generated output available in a review.
 
 This approach comes with two drawbacks. The git repository contains now all
 images from the notebooks, increases in size significantly. If you want to
