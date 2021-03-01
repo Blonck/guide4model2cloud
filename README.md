@@ -26,7 +26,7 @@ The complete guide contains:
     1. [x] Simple RandomForesetClassifier
     2. [x] FastAPI webapp [https://fastapi.tiangolo.com/]
     3. [x] Docker image
-3. [TODO] Setting up data pipelines via DVC [https://dvc.org/]
+3. [x] Setting up data pipelines via DVC [https://dvc.org/]
 4. [TODO] Exploring the data
 5. [TODO] Trying different models and tune hyperparameters via optuna [https://optuna.org/]
 6. [TODO] Setting up tests
