@@ -41,8 +41,8 @@ The complete guide contains:
 
 ## Conda
 
-I start by setting up the working environment for the project.  For the package
-installation and handling, the conda package manager is used.  You can download
+I start by setting up the working environment for the project. For the package
+installation and handling, the conda package manager is used. You can download
 the installer from
 [https://docs.conda.io/en/latest/miniconda.html#linux-installers] and install
 it via
@@ -50,7 +50,7 @@ it via
 bash Miniconda3-latest-Linux-x86_64.sh
 ```
 
-Since conda sometimes needs some time to resolve package dependencies, the
+Since conda is sometimes a bit slow when resolving package dependencies, the
 first package I install is mamba, a drop-in replacement for conda. However, be
 warned, in its current state, mamba is experimental.
 ```bash
@@ -58,7 +58,7 @@ conda install mamba -n base -c conda-forge
 ```
 
 The whole development is now done inside a conda environment, which can be
-directly created from the XML file in this repo:
+directly created from the yml file in this repo:
 ```bash
 mamba env create --file model2cloud.yml
 ```
