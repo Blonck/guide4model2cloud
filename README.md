@@ -21,18 +21,20 @@ dataset is quite imbalanced.
 
 
 The complete guide contains:
-1. Setting up the environment
-2. Quickly to a functional prototype
-    1. Simple RandomForesetClassifier
-    2. FastAPI webapp [https://fastapi.tiangolo.com/]
-    3. Docker image
-3. (TODO) Setting up data pipelines via DVC [https://dvc.org/]
-4. (TODO) Exploring the data
-6. (TODO) Trying different models and tune hyperparameters via optuna [https://optuna.org/]
-7. (TODO) Deploying the model to
-    1. AWS
-    2. Google cloud
-    3. Microsoft Azure
+1. [x] Setting up the environment
+2. [x] Quickly to a functional prototype
+    1. [x] Simple RandomForesetClassifier
+    2. [x] FastAPI webapp [https://fastapi.tiangolo.com/]
+    3. [x] Docker image
+3. [TODO] Setting up data pipelines via DVC [https://dvc.org/]
+4. [TODO] Exploring the data
+5. [TODO] Trying different models and tune hyperparameters via optuna [https://optuna.org/]
+6. [TODO] Setting up tests
+7. [TODO] Improve FastAPI application
+8. [TODO] Deploying the model to
+    1. [TODO] AWS
+    2. [TODO] Google cloud
+    3. [TODO] Microsoft Azure
 
 
 # Setting up the environment
@@ -41,33 +43,33 @@ The complete guide contains:
 
 For the package installation and handling, the conda package manager is used.
 You can download the installer from [https://docs.conda.io/en/latest/miniconda.html#linux-installers] and install it via
-```
+```bash
 bash Miniconda3-latest-Linux-x86_64.sh
 ```
 
 Since conda sometimes needs some time to resolve package dependencies, the
 first package I install is mamba, a drop-in replacement for conda. However, be
 warned, in its current state, mamba is experimental.
-```
+```bash
 conda install mamba -n base -c conda-forge
 ```
 
 The whole development is now done inside a conda environment, which can be
 directly created from the XML file in this repo:
-```
+```bash
 mamba env create --file model2cloud.yml
 ```
 Now the environment is activated via:
-```
+```bash
 conda activate model2cloud
 ```
 
 New packages can be installed by
-```
+```bash
 mamba install $packagename
 ```
 or better by adding it to the yml file followed by
-```
+```bash
 mamba env update --file model2cloud.yml
 ```
 
@@ -84,12 +86,12 @@ code into the master.
 
 One can manually convert a notebook to a python file
 via:
-```
+```bash
 jupytext --to py $notebook_file
 ```
 However, better is to enable the synchronization between the notebook via the jupyter UI.
 For this project, the synchronization is enabled for notebooks the following line
-```
+```bash
 default_jupytext_formats = "ipynb,py:percent"
 ```
 in the `jupytext.toml` file.
@@ -113,7 +115,7 @@ drawback is that the ipynb and python files could come out of sync, this one
 can prevent a pre-commit hook as given in `githooks/pre-commit`.
 
 To enable these githooks you can configure your hook path via:
-```
+```bash
 git config core.hooksPath githooks/
 ```
 
@@ -194,7 +196,7 @@ The actual app `app/simpleapp.py` mainly does two things.
 Firstly it loads in the stored pickle files. The custom unpickler is needed since the
 model is pickled within the notebook, and thus the context from which the app is executed
 would not find the corresponding python classes.
-```
+```python
 class CustomUnpickler(pickle.Unpickler):
 
     def find_class(self, module, name):
@@ -213,7 +215,7 @@ encoder = CustomUnpickler(open(encoder_file, 'rb')).load()
 
 The other relevant lines create the endpoint, transform the incoming data into a DataFrame,
 execute the model, and return the prediction.
-```
+```python
 @app.post('/predict')
 def predict(data: ClientDataSimple):
     # transform dict to pandas DataFrame
@@ -230,7 +232,7 @@ def predict(data: ClientDataSimple):
 ```
 
 The application is now started via executed in the app directory.
-```
+```bash
 uvicorn simpleapp:app --reload
 ```
 
@@ -238,3 +240,41 @@ That's it. Even better, FastAPI also provides also an OpenAPI specification unde
 and a Swagger UI under `http://127.0.0.1:8000/docs`, which one can use to test the API.
 
 ## Make API available via docker
+
+Now the application runs on your computer, great but not especially helpful for
+providing the API to others or even deploy it to some cloud providers. One of
+the easiest ways to do so is to pack the application into a docker image (see
+[https://docs.docker.com/get-started/]).
+
+To create a docker image for the FastAPI application is done quite fast (`./Dockerfile`).
+It just copies the application, installs the requirements via pip, and starts the application.
+```docker
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8
+
+WORKDIR /var/app
+
+COPY app/ .
+
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+
+EXPOSE 8000
+CMD ["uvicorn", "simpleapp:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+The docker image can now be built by
+```bash
+docker build -t api4model2cloud
+```
+and started by
+```bash
+docker run --rm -t -i -p 8000:8000 --name=api4model2cloud api4model2cloud
+```
+
+As when starting the application from the shell, you can now access the Swagger
+UI by accessing `http://127.0.0.1:8000/docs`. 
+The former commands are put into a Makefile `(./Makefile)` to ease the
+development, such that make build and make run are sufficient to build and
+test the docker image.
+The docker image can now be uploaded to your choice's docker registry and
+grabbed there by your colleagues.
