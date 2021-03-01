@@ -14,7 +14,7 @@ For that, I use the freely available data from a marketing campaign
 [https://archive.ics.uci.edu/ml/datasets/Bank+Marketing#]. Predicting a
 marketing campaign's success may sound not very interesting, and honestly, it
 is not. However, the data set is suited for this task for multiple
-reasons. Most importantly, it is freely available. It has medium-size, which
+reasons. Most importantly, it is freely available. It is medium-sized, which
 means handling the data and training models, doesn't need an enormous amount of
 computing resources. Also, the problem is not too easy to solve, as the
 dataset is quite imbalanced.
@@ -41,8 +41,11 @@ The complete guide contains:
 
 ## Conda
 
-For the package installation and handling, the conda package manager is used.
-You can download the installer from [https://docs.conda.io/en/latest/miniconda.html#linux-installers] and install it via
+I start by setting up the working environment for the project.  For the package
+installation and handling, the conda package manager is used.  You can download
+the installer from
+[https://docs.conda.io/en/latest/miniconda.html#linux-installers] and install
+it via
 ```bash
 bash Miniconda3-latest-Linux-x86_64.sh
 ```
