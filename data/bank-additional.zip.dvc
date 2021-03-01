@@ -1,0 +1,10 @@
+md5: 9d418b9c72c632f37900fd48900e7754
+frozen: true
+deps:
+- etag: '"6c89c-4f9b6dc2ad000"'
+  size: 444572
+  path: https://archive.ics.uci.edu/ml/machine-learning-databases/00222/bank-additional.zip
+outs:
+- md5: 43a0fe26c44a818d5df1b843dd11e2de
+  size: 444572
+  path: bank-additional.zip

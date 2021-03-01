@@ -12,6 +12,7 @@ dependencies:
   - jupytext                        # convert ipynb to python
   - tqdm                            # progress bar
   - pandas
+  - pyarrow
   - scikit-learn
   - category_encoders               # multiple encoding techniques in one cool library
   - scipy

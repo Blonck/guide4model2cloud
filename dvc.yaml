@@ -1,0 +1,18 @@
+stages:
+  unzip_data:
+    cmd: unzip data/bank-additional.zip -d data/ &&
+         mv data/bank-additional/bank-additional* data/ &&
+         rm -rf data/__MACOSX && rm -rf data/bank-additional/
+    deps:
+    - data/bank-additional.zip
+    outs:
+    - data/bank-additional-full.csv
+    - data/bank-additional-names.txt
+    - data/bank-additional.csv
+  raw_to_parquet:
+    cmd: scripts/run_with_conda.sh notebooks/preprocessing/check_and_convert_input.py
+    deps:
+    - scripts/run_with_conda.sh
+    - data/bank-additional-full.csv
+    outs:
+    - data/bank-additional-full.parquet

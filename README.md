@@ -272,9 +272,131 @@ docker run --rm -t -i -p 8000:8000 --name=api4model2cloud api4model2cloud
 ```
 
 As when starting the application from the shell, you can now access the Swagger
-UI by accessing `http://127.0.0.1:8000/docs`. 
-The former commands are put into a Makefile `(./Makefile)` to ease the
-development, such that make build and make run are sufficient to build and
-test the docker image.
-The docker image can now be uploaded to your choice's docker registry and
-grabbed there by your colleagues.
+UI by accessing `http://127.0.0.1:8000/docs`. The former commands are put into
+a Makefile `(./Makefile)` to ease the development, such that make build and
+make run are sufficient to build and test the docker image.  The docker image
+can now be uploaded to your choice's docker registry and grabbed there by your
+colleagues.
+
+
+# Setting up data pipelines via DVC
+
+It becomes quite a mess when multiple people work on the same project with the
+same data.
+As soon as people start to copy data, share preprocessed data, or update the
+base data manually, it becomes a mess to overview which state of the data is
+used.
+
+DVC is a tool that comes to the rescue to cope with these problems
+[www.dvc.org]. DVC allows us to have a kind of version control for data, makes it
+easy to share data, manage pipelines and experiments, and allows reproducible
+results.
+
+Usually, DVC is also used to have a shared data repository, used to share data
+with all project collaborators. However, in this project, I use DVC only for
+managing data transformation pipelines and training models. In [https://dvc.org/doc/user-guide],
+you can find a detailed guide; I will only show the bare minimum of what is possible with DVC.
+
+First, the repository must be initialized via
+```bash
+dvc init
+```
+
+The next step is to track the input data as an external resource.
+```bash
+dvc import-url https://archive.ics.uci.edu/ml/machine-learning-databases/00222/bank-additional.zip data/
+```
+This downloads the dataset and puts it into the `data/` folder. If the dataset
+would change, you or one of your colleagues could update the initial input data
+via
+```bash
+dvc update data/bank-additional.zip.dvc
+```
+
+The first real pipeline step is to unpack the data and move it to the right destination.
+The next command creates a pipeline set that unzips the data, moves it to the right place, and remove the remnants.
+```bash
+dvc run -n unzip_data -d data/bank-additional.zip -o data/bank-additional-full.csv -o data/bank-additional-names.txt -o data/bank-additional.csv 'unzip data/bank-additional.zip -d data/ && mv data/bank-additional/bank-additional* data/ && rm -rf data/__MACOSX && rm -rf data/bank-additional'
+```
+This step is stored within `dvc.yaml`
+```yaml
+stages:
+  unzip_data:
+    cmd: unzip data/bank-additional.zip -d data/ &&
+         mv data/bank-additional/bank-additional* data/ &&
+         rm -rf data/__MACOSX && rm -rf data/bank-additional/
+    deps:
+    - data/bank-additional.zip
+    outs:
+    - data/bank-additional-full.csv
+    - data/bank-additional-names.txt
+    - data/bank-additional.csv
+```
+The basis of each pipeline step is the command (`cmd`) which defines how the
+output (`outs`) is generated from the input (`deps`). DVC automatically tracks
+the current state of the input and output via checksumming; see `dvc.lock`.
+Whenever the input changes, DVC will recognize this and know which outputs must
+be recreated when executing `dvc repro`. Just try it out, delete all the
+generated csv and txt files and execute `dvc repro`.
+
+DVC will create a graph of all dependencies so that whenever one of your
+collaborators change any dependency, you can execute `dvc repro` and DVC will
+care to update all output which depends on the changed input.
+
+I will edit the dvc.yaml file directly for all further pipeline steps instead
+of running the tedious dvc run commands.
+
+The next pipeline step will take the csv file and transform it into a parquet
+file. The parquet file stores the data type save and more efficiently than a
+csv file so that further steps can read the parquet file and don't need to
+transform the types of each column itself.
+
+This could quickly be done using nbconvert --execute, but I will wrap this
+execution into a shell script that ensures that jupytext synchronizes the
+notebook and its python representation. There are situations where using
+notebooks becomes quite handy, for example, when you want to create reports
+whenever data is updated.
+
+```bash
+# syncs given notebook in python format and converts the ipynb file into HTML after running it
+
+# exit on first error
+set -e
+
+SCRIPTDIR=`dirname $0`
+
+if [ "$1" == "" ]; then
+    echo "Name of the notebook is missing"
+    exit
+else
+    NOTEBOOK=$1
+fi
+
+if [ -f $NOTEBOOK ];then
+    IPNYB_NOTEBOOK=${NOTEBOOK%%.py}.ipynb
+
+    # if the notebook exists, just sync it (use the newest version)
+    # if not, create it
+    if [ -f $IPNYB_NOTEBOOK ];then
+        jupytext --sync ${NOTEBOOK}
+        else jupytext --to notebook ${NOTEBOOK}
+    fi
+
+    jupyter nbconvert --ExecutePreprocessor.timeout=-1 --to html --execute ${IPNYB_NOTEBOOK}
+else
+    echo "${NOTEBOOK} does not exists"
+    exit 1
+fi
+```
+
+The script above is now used in the following dvc step.
+```yml
+  raw_to_parquet:
+    cmd: scripts/run_with_conda.sh notebooks/preprocessing/check_and_convert_input.py
+    deps:
+    - scripts/run_with_conda.sh
+    - data/bank-additional-full.csv
+    outs:
+    - data/bank-additional-full.parquet
+```
+to convert `data/bank-additional-full.csv` into `data/bank-additional-full.parquet`, see `notebooks/preprocessing/check_and_convert_input.py`.

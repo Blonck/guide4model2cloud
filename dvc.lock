@@ -1,0 +1,34 @@
+schema: '2.0'
+stages:
+  unzip_data:
+    cmd: unzip data/bank-additional.zip -d data/ && mv data/bank-additional/bank-additional*
+      data/ && rm -rf data/__MACOSX && rm -rf data/bank-additional/
+    deps:
+    - path: data/bank-additional.zip
+      md5: 43a0fe26c44a818d5df1b843dd11e2de
+      size: 444572
+    outs:
+    - path: data/bank-additional-full.csv
+      md5: 661979d68d433ae79d550e59f366ead6
+      size: 5834924
+      isexec: true
+    - path: data/bank-additional-names.txt
+      md5: 7023155401ba3423ef774142a24c5527
+      size: 5458
+    - path: data/bank-additional.csv
+      md5: 3eb720d1b62acf34463929e70b3b2304
+      size: 583898
+      isexec: true
+  raw_to_parquet:
+    cmd: scripts/run_with_conda.sh notebooks/preprocessing/check_and_convert_input.py
+    deps:
+    - path: data/bank-additional-full.csv
+      md5: 661979d68d433ae79d550e59f366ead6
+      size: 5834924
+    - path: scripts/run_with_conda.sh
+      md5: 7f6daf4c5b7823ec5f6ca11e225a0f3e
+      size: 678
+    outs:
+    - path: data/bank-additional-full.parquet
+      md5: 18749056e1e5f71c61f4a6cf52880e76
+      size: 238590
