@@ -155,9 +155,9 @@ generate any meaningful results.
 In `notebooks/01_FirstLookIntoData.ipynb` I check at least who the target
 variable looks like.  In particular, `data['y'].value_counts(normalize=True)`
 shows that the dataset is imbalanced, 11% positive cases. This must be
-respected even in the first prototype. In particular, the metric for the
-model must be chosen carefully. Accuracy will be certainly not a very useful.
-
+respected even in the first prototype. Even the prototype should not use an
+unsuitable metric. For this dataset, accuracy will be certainly not very
+useful.
 ### NA's
 
 Luckily, there are not NA values in this dataset (`data.isna().sum()`).
@@ -166,8 +166,8 @@ Otherwise, these have to be also handled for the prototype.
 ### Categorical variables
 
 For the first model, I check that enough samples are present in the dataset for
-each class in each category, and I don't need to group these together, which
-only occur seldomly. 
+each class in each category, and I don't need to group these, which only occur
+seldomly. 
 ![Count classes](./images/CountClasses.png)
 
 ## First stupid model
@@ -241,8 +241,9 @@ The application is now started via executed in the app directory.
 uvicorn simpleapp:app --reload
 ```
 
-That's it. Even better, FastAPI also provides also an OpenAPI specification under `http://127.0.0.1:8000/openapi.json`
-and a Swagger UI under `http://127.0.0.1:8000/docs`, which one can use to test the API.
+That's it. Even better, FastAPI also provides also an OpenAPI specification
+under `http://127.0.0.1:8000/openapi.json` and a Swagger UI under
+`http://127.0.0.1:8000/docs`, which one can use to test the API.
 
 ## Make API available via docker
 
@@ -251,8 +252,9 @@ providing the API to others or even deploy it to some cloud providers. One of
 the easiest ways to do so is to pack the application into a docker image (see
 [https://docs.docker.com/get-started/]).
 
-To create a docker image for the FastAPI application is done quite fast (`./Dockerfile`).
-It just copies the application, installs the requirements via pip, and starts the application.
+To create a docker image for the FastAPI application is done quite fast
+(`./Dockerfile`). It just copies the application, installs the requirements
+via pip, and starts the application.
 ```docker
 FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8
 
@@ -287,10 +289,9 @@ colleagues.
 # Setting up data pipelines via DVC
 
 It becomes quite a mess when multiple people work on the same project with the
-same data.
-As soon as people start to copy data, share preprocessed data, or update the
-base data manually, it becomes a mess to overview which state of the data is
-used.
+same data. As soon as people start to copy data, share preprocessed data, or
+update the base data manually, it becomes a mess to overview which state of the
+data is used.
 
 DVC is a tool that comes to the rescue to cope with these problems
 [www.dvc.org]. DVC allows us to have a kind of version control for data, makes it
@@ -299,8 +300,9 @@ results.
 
 Usually, DVC is also used to have a shared data repository, used to share data
 with all project collaborators. However, in this project, I use DVC only for
-managing data transformation pipelines and training models. In [https://dvc.org/doc/user-guide],
-you can find a detailed guide; I will only show the bare minimum of what is possible with DVC.
+managing data transformation pipelines and training models. In
+[https://dvc.org/doc/user-guide], you can find a detailed guide; I will only
+show the bare minimum of what is possible with DVC.
 
 First, the repository must be initialized via
 ```bash
@@ -322,7 +324,11 @@ The first real pipeline step is to unpack the data and move it to the right
 destination. The following command creates a pipeline set that unzips the
 data, moves it to the right place, and remove the remnants.
 ```bash
-dvc run -n unzip_data -d data/bank-additional.zip -o data/bank-additional-full.csv -o data/bank-additional-names.txt -o data/bank-additional.csv 'unzip data/bank-additional.zip -d data/ && mv data/bank-additional/bank-additional* data/ && rm -rf data/__MACOSX && rm -rf data/bank-additional'
+dvc run -n unzip_data -d data/bank-additional.zip \
+    -o data/bank-additional-full.csv \
+    -o data/bank-additional-names.txt \
+    -o data/bank-additional.csv \
+    'unzip data/bank-additional.zip -d data/ && mv data/bank-additional/bank-additional* data/ && rm -rf data/__MACOSX && rm -rf data/bank-additional'
 ```
 
 This commands creates 'dvc.yaml', which includes the following lines
@@ -362,9 +368,10 @@ to transform the types of each column itself.
 
 This could quickly be done using `nbconvert --execute`, but I will wrap this
 execution into a shell script that ensures that jupytext synchronizes the
-notebook and its python representation and convert the notebook to HTML.
-There are situations where viewing notebook output becomes quite handy, for example,
-when you want to create reports or wish to have a quick overview when data changes.
+notebook and its python representation and convert the notebook to HTML.  There
+are situations where viewing notebook output becomes quite handy, for example,
+when you want to create reports or wish to have a quick overview when data
+changes.
 
 ```bash
 # syncs given notebook in python format and converts the ipynb file into HTML after running it
@@ -399,7 +406,7 @@ fi
 ```
 
 The script above is now used in the following dvc step.
-```yml
+```yaml
   raw_to_parquet:
     cmd: scripts/run_with_conda.sh notebooks/preprocessing/check_and_convert_input.py
     deps:
