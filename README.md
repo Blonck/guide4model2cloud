@@ -82,7 +82,7 @@ mamba env update --file model2cloud.yml
 Jupytext is a tool to convert jupyter notebooks (ipynb) to plain python files,
 see [https://jupytext.readthedocs.io/en/latest/].
 
-Jupytext has three main use cases: applying linting to notebooks, editing
+Jupytext has multiple use cases: applying linting to notebooks, editing
 notebook files with your preferred editor, doing version control, and enable
 code review on your notebooks. For this repo, the third point is the important
 one. Especially in teams, you might want to use code review before merging new
@@ -100,17 +100,18 @@ default_jupytext_formats = "ipynb,py:percent"
 ```
 in the `jupytext.toml` file.
 
-This means, whenever you save your notebook, a plain python file is created or updated.
+Synchronization means, whenever you save your notebook, jupytext updates the
+corresponding python file.
 
 ### Jupytext commit hook
 
-In principle, one could commit only the python code to the git repository.
-There are much better suited for reviewing the code and creating comments. When
-somebody checks out the python file, the corresponding notebook is
-automatically created. However, to understand the content of a notebook, the
-generated images are quite crucial. As the ideas and findings presented in a
-notebook are probably more important than the code itself, I find it essential
-to have all the generated output available in a review.
+In principle, one could commit only the python code to git. The .py files are
+better suited for reviewing the code and adding comments. When somebody checks
+out the python file, the corresponding notebook is automatically created.
+However, to understand a notebook's content, I find the figures quite crucial
+to understand the content. As the ideas and findings presented in a notebook
+are probably more important than the code itself, for me, it is essential to
+have all the generated output available in a review.
 
 This approach comes with two drawbacks. The git repository contains now all
 images from the notebooks, increases in size significantly. If you want to
@@ -118,7 +119,7 @@ readable notebooks in the repository this is not avoidable. The second
 drawback is that the ipynb and python files could come out of sync, this one
 can prevent a pre-commit hook as given in `githooks/pre-commit`.
 
-To enable these githooks you can configure your hook path via:
+To enable these githooks, you can configure your hook path via:
 ```bash
 git config core.hooksPath githooks/
 ```
@@ -126,9 +127,9 @@ git config core.hooksPath githooks/
 # Quickly to a functional prototype
 
 So that is enough configuration for the beginning. The next part cares around
-creating a prototype, including a preliminary model and exposing it via a web
-API. The idea behind the preliminary model is to get as fast as possible to
-running code which serves two purposes:
+creating a prototype and exposing it via a web API. The idea behind the
+preliminary model is to get as fast as possible to running code which serves
+two purposes:
 1. Give a baseline performance.
 2. Provide other teams/developers something against which they can develop
 
@@ -317,12 +318,15 @@ via
 dvc update data/bank-additional.zip.dvc
 ```
 
-The first real pipeline step is to unpack the data and move it to the right destination.
-The next command creates a pipeline set that unzips the data, moves it to the right place, and remove the remnants.
+The first real pipeline step is to unpack the data and move it to the right
+destination. The following command creates a pipeline set that unzips the
+data, moves it to the right place, and remove the remnants.
 ```bash
 dvc run -n unzip_data -d data/bank-additional.zip -o data/bank-additional-full.csv -o data/bank-additional-names.txt -o data/bank-additional.csv 'unzip data/bank-additional.zip -d data/ && mv data/bank-additional/bank-additional* data/ && rm -rf data/__MACOSX && rm -rf data/bank-additional'
 ```
-This step is stored within `dvc.yaml`
+
+This commands creates 'dvc.yaml', which includes the following lines
+representing the pipeline step.
 ```yaml
 stages:
   unzip_data:
@@ -336,30 +340,31 @@ stages:
     - data/bank-additional-names.txt
     - data/bank-additional.csv
 ```
-The basis of each pipeline step is the command (`cmd`) which defines how the
-output (`outs`) is generated from the input (`deps`). DVC automatically tracks
-the current state of the input and output via checksumming; see `dvc.lock`.
-Whenever the input changes, DVC will recognize this and know which outputs must
-be recreated when executing `dvc repro`. Just try it out, delete all the
+
+The basis of each pipeline step is the command (cmd) which defines how the
+input (deps) transforms to the output (outs). DVC automatically tracks the
+current state of the input and output via checksumming; see `dvc.lock`.
+Whenever you execute `dvc repro`, DVC detects changed inputs and know which steps
+must be repeated to generate the new output. Just try it out, delete all the
 generated csv and txt files and execute `dvc repro`.
 
 DVC will create a graph of all dependencies so that whenever one of your
 collaborators change any dependency, you can execute `dvc repro` and DVC will
 care to update all output which depends on the changed input.
 
-I will edit the dvc.yaml file directly for all further pipeline steps instead
-of running the tedious dvc run commands.
+I will edit the dvc.yaml file directly instead of running the tedious dvc run
+commands for all further steps.
 
-The next pipeline step will take the csv file and transform it into a parquet
-file. The parquet file stores the data type save and more efficiently than a
-csv file so that further steps can read the parquet file and don't need to
-transform the types of each column itself.
+The following pipeline step will take the csv file and transform it into a
+parquet file. The parquet file stores the data type save and more efficiently
+than a csv file so that further steps can read the parquet file and don't need
+to transform the types of each column itself.
 
-This could quickly be done using nbconvert --execute, but I will wrap this
+This could quickly be done using `nbconvert --execute`, but I will wrap this
 execution into a shell script that ensures that jupytext synchronizes the
-notebook and its python representation. There are situations where using
-notebooks becomes quite handy, for example, when you want to create reports
-whenever data is updated.
+notebook and its python representation and convert the notebook to HTML.
+There are situations where viewing notebook output becomes quite handy, for example,
+when you want to create reports or wish to have a quick overview when data changes.
 
 ```bash
 # syncs given notebook in python format and converts the ipynb file into HTML after running it
