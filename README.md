@@ -1,24 +1,26 @@
 # Idea
 
-This is an exemplary repository for a project setup to create, maintain, and
-deploy a machine learning model as a web API on a cloud provider. Of course,
-this guide/repository contains all the steps necessary to build a machine
-learning model. But it will also include all the small stuff needed to run it
-as a project in the real world, which includes: working on it as a team,
-setting up data pipelines to cope with new data, and providing the results as a
-resource for other developers. Sayed that, I must admit that the most
-complicated part is left out: how to get a dataset containing the labels in the
-first place.
+This repository is meant to be a blueprint for creating, maintaining, and
+deploying a Machine Learning model in a professional environment. Of course,
+this is only one out of many possible approaches, but maybe some of the content
+may help you organize your project.
 
-For that, I use the freely available data from a marketing campaign
+Predominantly this guide/repository contains all the steps necessary to build a
+machine learning model. But it will also include all the small stuff required
+to run it as a project in the real world, which includes: working on it as a
+team, setting up data pipelines, and providing the results as a web API.  Sayed
+that, I must admit that the most complicated part is left out: how to get a
+dataset containing the labels in the first place.
+
+This guide follows a hands approach and builds a model for a freely available
+dataset on bank marketing
 [https://archive.ics.uci.edu/ml/datasets/Bank+Marketing#]. Predicting a
 marketing campaign's success may sound not very interesting, and honestly, it
-is not. However, the data set is suited for this task for multiple
-reasons. Most importantly, it is freely available. It is medium-sized, which
-means handling the data and training models, doesn't need an enormous amount of
-computing resources. Also, the problem is not too easy to solve, as the
-dataset is quite imbalanced.
-
+is not. However, the data set is suited for this task for multiple reasons.
+Most importantly, it is freely available. It is medium-sized, which means
+handling the data and training models, doesn't need an enormous amount of
+computing resources. Also, the problem is not too easy to solve, as the dataset
+is quite imbalanced.
 
 The complete guide contains:
 1. [x] Setting up the environment
@@ -41,16 +43,16 @@ The complete guide contains:
 
 ## Conda
 
-I start by setting up the working environment for the project. For the package
-installation and handling, the conda package manager is used. You can download
-the installer from
+I start by setting up the working environment in which I do all the analyses,
+experiments, and model building. For the package installation and handling,
+the conda package manager is used. You can download the installer from
 [https://docs.conda.io/en/latest/miniconda.html#linux-installers] and install
 it via
 ```bash
 bash Miniconda3-latest-Linux-x86_64.sh
 ```
 
-Since conda is sometimes a bit slow when resolving package dependencies, the
+Since conda is sometimes slow when resolving package dependencies, the
 first package I install is mamba, a drop-in replacement for conda. However, be
 warned, in its current state, mamba is experimental.
 ```bash
@@ -140,7 +142,7 @@ closed with a decent amount of work. If the preliminary model only reaches 60% a
 it might be that you have a long way in front of you.
 
 A working prototype also helps when cooperating with other teams or developers.
-In the case, your prediction is used in a more complex application; others can already
+If your prediction is used in a more complex application, others can already
 develop their solution (frontend or backend application) against your model.
 You can then improve your model iteratively, for example, in a Scrum or Kanban style.
 
