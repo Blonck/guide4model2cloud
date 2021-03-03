@@ -31,6 +31,10 @@ assert set(data.columns) == set(['age', 'job', 'marital', 'education', 'default'
                                  'previous', 'poutcome', 'emp.var.rate', 'cons.price.idx',
                                  'cons.conf.idx', 'euribor3m', 'nr.employed', 'y'])
 
+# drop duration columns, since it should not be used for building the model,
+# see data information '../../data/bank-additional-names.txt'
+data = data.drop(columns=['duration'])
+
 # %%
 # convert strings in categorical variables
 cat_cols = data.dtypes[data.dtypes == 'object'].index

@@ -179,11 +179,11 @@ data and tested on the remaining 20%. To encode the categorical columns,
 I use the OneHotEncoder from category_encoders [https://contrib.scikit-learn.org/category_encoders/].
 
 For later experiments, the dataset must be split into a proper train,
-validation, and test set, but having a single test set is ... acceptable for
+validation, and test set, but having a single test set is ~~good~~ acceptable for
 the first model.
 
 For now, I use balanced accuracy to evaluate the model. Also, this needs a
-later revisit, but for now, the model achieves a balanced accuracy of 88%. Not
+later revisit, but for now, the model achieves a balanced accuracy of 73%. Not
 bad, for almost no work. In the last section of the notebook, the model is
 trained on the full dataset and saved as a pickle file for later usage.
 

@@ -31,6 +31,11 @@ import category_encoders as ce
 data = pd.read_csv('../data/bank-additional-full.csv', sep=';')
 
 # %%
+# the data information says, that duration should not be used, since it
+# is only available after the marketing call
+data = data.drop(columns=['duration'])
+
+# %%
 data['y'] = data['y'].map({'no': 0, 'yes': 1})
 
 # %% [markdown]
@@ -134,5 +139,3 @@ with open(model_dir / 'simple_enc.pkl', 'wb') as handle:
     
 with open(model_dir / 'simple_rf.pkl', 'wb') as handle:
     pickle.dump(clf, handle)
-
-# %%

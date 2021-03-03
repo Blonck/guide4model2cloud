@@ -13,7 +13,6 @@ class ClientDataSimple(BaseModel):
     contact: str = Query(...)
     month: str = Query(...)
     day_of_week: str = Query(...)
-    duration: int = Query(..., ge=0)
     campaign: int = Query(..., ge=0)
     pdays: int = Query(..., ge=0)
     previous: int = Query(..., ge=0)
