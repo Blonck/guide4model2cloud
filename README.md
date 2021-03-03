@@ -1,4 +1,4 @@
-# Idea
+# Purpose of this repository
 
 This repository is meant to be a blueprint for creating, maintaining, and
 deploying a Machine Learning model in a professional environment. Of course,
@@ -184,7 +184,7 @@ the first model.
 
 For now, I use balanced accuracy to evaluate the model. Also, this needs a
 later revisit, but for now, the model achieves a balanced accuracy of 88%. Not
-bad, for almost no work.  In the last section of the notebook, the model is
+bad, for almost no work. In the last section of the notebook, the model is
 trained on the full dataset and saved as a pickle file for later usage.
 
 In the last section of the notebook, the model is trained on the full dataset
@@ -385,6 +385,7 @@ SCRIPTDIR=`dirname $0`
 
 if [ "$1" == "" ]; then
     echo "Name of the notebook is missing"
+
     exit
 else
     NOTEBOOK=$1
@@ -418,3 +419,10 @@ The script above is now used in the following dvc step.
     - data/bank-additional-full.parquet
 ```
 to convert `data/bank-additional-full.csv` into `data/bank-additional-full.parquet`, see `notebooks/preprocessing/check_and_convert_input.py`.
+
+# Exploring the data
+
+So enough of all the annoying but necessary trivia, back to the real Data
+Science work. For a real improvement of the model, we need to understand the
+data better. You can find the following steps and explanations in the notebook
+`./notebooks/03_EDA.ipynb`. Based on these finding I try to build a better model.
