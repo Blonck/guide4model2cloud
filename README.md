@@ -445,6 +445,24 @@ all social and economic attributes are given on a monthly base or a quarterly
 base. This effect could harm the performance of the model for the real-world
 case.
 
-For now, I see two possibilities to cope with the problem, either drop
-all month with only very few attempts, or the train, validation, and test split
-must respect the time domain.
+When one looks at the numbers and considers that the correlation between the
+count and success probability is ~0.81, one could conclude that the number of
+attempts is the primary influence on the success rate.
+
+| month |  count |      prob |
+|:------|-------:|----------:|
+| mar   |    546 | 0.505495  |
+| apr   |   2632 | 0.204787  |
+| may   |  13769 | 0.0643474 |
+| jun   |   5318 | 0.105115  |
+| jul   |   7174 | 0.0904656 |
+| sep   |    570 | 0.449123  |
+| oct   |    718 | 0.438719  |
+| nov   |   4101 | 0.101439  |
+| dec   |    182 | 0.489011  |
+
+For now, I see only the possibility to drop the month with very few attempts
+and ignoring the remaining effect. In a real-world project, one would have to
+go back and find the root cause of this effect. Here, I can just ignore and go
+on. In the end, it is just an exemplary project.
+

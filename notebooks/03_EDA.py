@@ -57,7 +57,7 @@ data = pd.read_parquet('../data/bank-additional-full.parquet')
 # 19. nr.employed: number of employees - quarterly indicator (numeric)
 
 # %% [markdown]
-# # EDA
+# # Overview of each input feature
 #
 # The first step is to get an overview of the data. For that I use seaborns pairplot, which creates scatter plots
 # for each pair of columns.
@@ -296,8 +296,6 @@ data.groupby('y')['emp.var.rate'].hist(bins=10, alpha=0.5, density=True);
 
 # %% [markdown]
 # ## cons.price.idx
-#
-# * no 
 
 # %%
 data.groupby('cons.price.idx')['y'].mean().to_frame().join(
@@ -333,4 +331,22 @@ data.groupby('y')['euribor3m'].hist(bins=10, alpha=0.5, density=True);
 # %%
 data.groupby('y')['nr.employed'].hist(bins=10, alpha=0.5, density=True);
 
+# %% [markdown]
+# ## correlation with month
+
 # %%
+sozioeco_cols = ['emp.var.rate', 'cons.price.idx', 'cons.conf.idx', 'nr.employed']
+
+# %%
+data.groupby('month')[sozioeco_cols].nunique().reindex(
+    ['mar', 'apr', 'may', 'jun', 'jul', 'sep', 'oct', 'nov', 'dec']
+).join(
+    data.groupby('month').size().to_frame('count')
+).join(
+    data.groupby('month')['y'].mean().to_frame('prob')
+)
+
+# %% [markdown]
+# # Impute Unknown
+#
+# TODO
