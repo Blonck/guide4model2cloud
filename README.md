@@ -155,7 +155,7 @@ as possible. Still, a minimum amount of exploratory data analysis is needed to
 generate any meaningful results.
 
 In `notebooks/01_FirstLookIntoData.ipynb` I check at least who the target
-variable looks like.  In particular, `data['y'].value_counts(normalize=True)`
+variable looks like. In particular, `data['y'].value_counts(normalize=True)`
 shows that the dataset is imbalanced, 11% positive cases. This must be
 respected even in the first prototype. Even the prototype should not use an
 unsuitable metric. For this dataset, accuracy will be certainly not very
@@ -178,17 +178,20 @@ The random forest in `notebooks/02_FirstModel.ipynb` is trained on 80% of the
 data and tested on the remaining 20%. To encode the categorical columns,
 I use the OneHotEncoder from category_encoders [https://contrib.scikit-learn.org/category_encoders/].
 
-For later experiments, the dataset must be split into a proper train,
-validation, and test set, but having a single test set is ~~good~~ acceptable for
-the first model.
+The dataset must be split into a proper train, validation, and test set for
+later experiments, but having a single test set is acceptable for the first
+model.
 
-For now, I use balanced accuracy to evaluate the model. Also, this needs a
+For now, I use balanced accuracy to evaluate the model. This needs a
 later revisit, but for now, the model achieves a balanced accuracy of 73%. Not
-bad, for almost no work. In the last section of the notebook, the model is
-trained on the full dataset and saved as a pickle file for later usage.
+bad, for almost no work. At least at first sight. Later I will show hints
+that some of the input features are flawed, and using them will may result in
+good results on this training set but would lead to problems when used on new
+data. In the last section of the notebook, the model is trained on the full
+dataset and saved as a pickle file for later usage.
 
-In the last section of the notebook, the model is trained on the full dataset
-and saved as a pickle file for later usage.
+In the last section of the notebook, I train the model on the full dataset and
+save it as a pickle file for later usage.
 
 ## First FastAPI application
 
@@ -425,4 +428,23 @@ to convert `data/bank-additional-full.csv` into `data/bank-additional-full.parqu
 So enough of all the annoying but necessary trivia, back to the real Data
 Science work. For a real improvement of the model, we need to understand the
 data better. You can find the following steps and explanations in the notebook
-`./notebooks/03_EDA.ipynb`. Based on these finding I try to build a better model.
+`./notebooks/03_EDA.ipynb`.
+
+
+Here I want at least mention the most important finding. The data stems from
+previous campaigns, which had not a very constant throughput.
+
+![Monthly attempts](./images/MonthlyAttempts.png)
+
+However, the success rate seems to depend crucially on these numbers of attempts.
+
+![Monthly success](./images/MonthlySuccess.png).
+
+So it might not be a good idea to use the month as an input feature. Even more,
+all social and economic attributes are given on a monthly base or a quarterly
+base. This effect could harm the performance of the model for the real-world
+case.
+
+For now, I see two possibilities to cope with the problem, either drop
+all month with only very few attempts, or the train, validation, and test split
+must respect the time domain.
