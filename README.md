@@ -241,7 +241,7 @@ def predict(data: ClientDataSimple):
     return preds.to_json(orient='records')
 ```
 
-The application is now started via executed in the app directory.
+To start the application, execute:
 ```bash
 uvicorn simpleapp:app --reload
 ```
@@ -318,15 +318,15 @@ The next step is to track the input data as an external resource.
 ```bash
 dvc import-url https://archive.ics.uci.edu/ml/machine-learning-databases/00222/bank-additional.zip data/
 ```
-This downloads the dataset and puts it into the `data/` folder. If the dataset
+The command downloads the dataset and puts it into the `data/` folder. If the dataset
 would change, you or one of your colleagues could update the initial input data
 via
 ```bash
 dvc update data/bank-additional.zip.dvc
 ```
 
-The first real pipeline step is to unpack the data and move it to the right
-destination. The following command creates a pipeline set that unzips the
+The first pipeline step doing real work is unpacking the data and moving it to
+the right destination. The following command creates a pipeline set that unzips the
 data, moves it to the right place, and remove the remnants.
 ```bash
 dvc run -n unzip_data -d data/bank-additional.zip \
@@ -335,9 +335,8 @@ dvc run -n unzip_data -d data/bank-additional.zip \
     -o data/bank-additional.csv \
     'unzip data/bank-additional.zip -d data/ && mv data/bank-additional/bank-additional* data/ && rm -rf data/__MACOSX && rm -rf data/bank-additional'
 ```
-
-This commands creates 'dvc.yaml', which includes the following lines
-representing the pipeline step.
+Running the above command creates a file named 'dvc.yaml', which includes the
+following lines representing the pipeline step.
 ```yaml
 stages:
   unzip_data:
@@ -361,7 +360,7 @@ generated csv and txt files and execute `dvc repro`.
 
 DVC will create a graph of all dependencies so that whenever one of your
 collaborators change any dependency, you can execute `dvc repro` and DVC will
-care to update all output which depends on the changed input.
+care to update all output which depends on the modified input.
 
 I will edit the dvc.yaml file directly instead of running the tedious dvc run
 commands for all further steps.
@@ -371,7 +370,9 @@ parquet file. The parquet file stores the data type save and more efficiently
 than a csv file so that further steps can read the parquet file and don't need
 to transform the types of each column itself.
 
-This could quickly be done using `nbconvert --execute`, but I will wrap this
+On could do this by executing a simple python script, but here I will use the
+opportunity to show how to integrate a jupyter notebook into a DVC step.
+To do so, one could employ `nbconvert --execute`, but I will wrap this
 execution into a shell script that ensures that jupytext synchronizes the
 notebook and its python representation and convert the notebook to HTML.  There
 are situations where viewing notebook output becomes quite handy, for example,
@@ -425,18 +426,19 @@ to convert `data/bank-additional-full.csv` into `data/bank-additional-full.parqu
 
 # Exploring the data
 
-So enough of all the annoying but necessary trivia, back to the real Data
-Science work. For a real improvement of the model, we need to understand the
+So enough of all the annoying but necessary trivia, back to the real "Data
+Science" work. For a real improvement of the model, we need to understand the
 data better. You can find the following steps and explanations in the notebook
-`./notebooks/03_EDA.ipynb`.
-
+`./notebooks/03_EDA.ipynb`. Although the dataset may contain many interesting
+facts and insights in the marketing campaign, I only target aspect relevant for
+developing and improving the machine learning model. 
 
 Here I want at least mention the most important finding. The data stems from
 previous campaigns, which had not a very constant throughput.
 
 ![Monthly attempts](./images/MonthlyAttempts.png)
 
-However, the success rate seems to depend crucially on these numbers of attempts.
+However, the success rate seems to depend crucially on the number of attempts.
 
 ![Monthly success](./images/MonthlySuccess.png).
 
@@ -461,8 +463,22 @@ attempts is the primary influence on the success rate.
 | nov   |   4101 | 0.101439  |
 | dec   |    182 | 0.489011  |
 
-For now, I see only the possibility to drop the month with very few attempts
-and ignoring the remaining effect. In a real-world project, one would have to
-go back and find the root cause of this effect. Here, I can just ignore and go
-on. In the end, it is just an exemplary project.
+Using only this dataset, I see no ways to solve this problem. There is a need
+to understand what happened during marketing to understand this effect and find
+the root cause.
 
+Nevertheless, here I won't bother with this. As an example,
+the dataset is still sufficient if I ignore this effect. Still, I won't use the
+month as an input feature since it does not make any sense. If you want to
+select the most probable customers at a particular time point, the month is
+obviously identical for all customers. 
+
+The correlation of the success rate to the number of attempts and thus to the
+month make it also questionable to use the monthly/quarterly socio-economic
+features.
+
+Firstly, these features are also identical for all customers at a particular
+time point. Secondly, one might argue that they still could be helpful since
+different customers react differently in the same socio-economic background,
+but the variance in these features is relatively low. Thus there is not too
+much in the dataset a model could learn from.

@@ -18,6 +18,7 @@ dependencies:
   - scipy
   - matplotlib
   - plotly                          # interactive figures
+  - python-kaleido                  # static image support for plotly
   - seaborn
   - pytorch
   - torchvision

@@ -95,6 +95,10 @@ data[data['age'] > 60]['y'].mean()/data['y'].mean()
 #
 # * students and retired have highest prob.
 # * all categories have enough samples to be used for training
+#
+# ### to try
+# * replace unknown with admin. (mode + similar prob.)
+# * use model to replace unknown
 
 # %%
 px.bar(
@@ -111,7 +115,11 @@ px.bar(
 # %% [markdown]
 # ## marital
 #
-# * very few 'unknown' cases: maybe replace with married (mode) or single (similar prob.);
+# * very few 'unknown' cases
+#
+# ### to try
+# * maybe replace 'unknown' with married (mode) or single (similar prob.);
+# * fit model to replace unknown
 
 # %%
 data['marital'].value_counts()
@@ -125,7 +133,10 @@ px.bar(
 # %% [markdown]
 # ## education
 #
-# * almost no illiterate cases; high prob. is maybe due to low statistics; maybe set to unknown
+# * almost no illiterate cases; high prob. is maybe due to low statistics
+#
+# ### to try
+# * replace illiterate with mode or model
 
 # %%
 data['education'].value_counts()
@@ -139,7 +150,11 @@ px.bar(
 # %% [markdown]
 # ## default
 #
-# * only three 'yes' cases, too few to be useful for the model; drop column or set 'yes' to 'unknown'
+# * only three 'yes' cases, too few to be useful for the model;
+#
+# ### to try
+# *  drop column
+# * set 'yes' to 'unknown'
 
 # %%
 data['default'].value_counts()
@@ -245,7 +260,9 @@ data.groupby('y')['campaign'].hist(bins=30, alpha=0.5, density=True, log=True)
 # ## pdays
 #
 # * 999 -> no previous contacts
-# * may try to set 999 to -1
+#
+# ### to try
+# * set 999 to -1
 
 # %%
 data.groupby('y')['pdays'].hist(bins=np.arange(0, 50), alpha=0.5, density=True);
@@ -298,8 +315,8 @@ data.groupby('y')['emp.var.rate'].hist(bins=10, alpha=0.5, density=True);
 # ## cons.price.idx
 
 # %%
-data.groupby('cons.price.idx')['y'].mean().to_frame().join(
-    data.groupby('cons.price.idx').size().to_frame('Count')
+data.groupby('cons.price.idx')['y'].mean().to_frame('prob').join(
+    data.groupby('cons.price.idx').size().to_frame('count')
 )
 
 # %%
@@ -333,9 +350,16 @@ data.groupby('y')['nr.employed'].hist(bins=10, alpha=0.5, density=True);
 
 # %% [markdown]
 # ## correlation with month
+#
+# The variance in all but 'euribor3m' features is quite low.
+# They are strongly correlated with the month they are measured.
+#
+# This means, although they could have a high predicitive power in general,
+# in this dataset is not enough data to learn from. Or in other words,
+# it is likely that a model just memorize these features.
 
 # %%
-sozioeco_cols = ['emp.var.rate', 'cons.price.idx', 'cons.conf.idx', 'nr.employed']
+sozioeco_cols = ['emp.var.rate', 'cons.price.idx', 'cons.conf.idx', 'euribor3m', 'nr.employed']
 
 # %%
 data.groupby('month')[sozioeco_cols].nunique().reindex(
@@ -350,3 +374,5 @@ data.groupby('month')[sozioeco_cols].nunique().reindex(
 # # Impute Unknown
 #
 # TODO
+
+# %%
