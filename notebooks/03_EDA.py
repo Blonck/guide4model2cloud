@@ -101,16 +101,16 @@ data[data['age'] > 60]['y'].mean()/data['y'].mean()
 # * use model to replace unknown
 
 # %%
-px.bar(
-    data['job'].value_counts(normalize=True),
-    labels={'value': 'count', 'index': 'job'}
-).show("png")
+data['job'].value_counts()
 
 # %%
 px.bar(
     data.groupby(['job'])['y'].mean(),
     labels={'value': 'prob'},
 ).show("png")
+
+# %%
+set(data['job'].unique()) - set(data['job'].unique())
 
 # %% [markdown]
 # ## marital

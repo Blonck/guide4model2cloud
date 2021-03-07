@@ -29,7 +29,7 @@ The complete guide contains:
     2. [x] FastAPI webapp [https://fastapi.tiangolo.com/]
     3. [x] Docker image
 3. [x] Setting up data pipelines via DVC [https://dvc.org/]
-4. [TODO] Exploring the data
+4. [x] Exploring the data
 5. [TODO] Trying different models and tune hyperparameters via optuna [https://optuna.org/]
 6. [TODO] Setting up tests
 7. [TODO] Improve FastAPI application
@@ -426,9 +426,12 @@ to convert `data/bank-additional-full.csv` into `data/bank-additional-full.parqu
 
 # Exploring the data
 
+
 So enough of all the annoying but necessary trivia, back to the real "Data
 Science" work. For a real improvement of the model, we need to understand the
-data better. You can find the following steps and explanations in the notebook
+data better. Of course, the process of understanding
+
+You can find the following steps and explanations in the notebook
 `./notebooks/03_EDA.ipynb`. Although the dataset may contain many interesting
 facts and insights in the marketing campaign, I only target aspect relevant for
 developing and improving the machine learning model. 
@@ -482,3 +485,6 @@ time point. Secondly, one might argue that they still could be helpful since
 different customers react differently in the same socio-economic background,
 but the variance in these features is relatively low. Thus there is not too
 much in the dataset a model could learn from.
+
+# Trying different models and tune hyperparameters via optuna [https://optuna.org/]
+
