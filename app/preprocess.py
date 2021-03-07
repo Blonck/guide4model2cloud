@@ -12,12 +12,27 @@ class CustomTransformer(TransformerMixin):
                  marital={'replace_unknown': False},
                  education={'replace_unknown': False,
                             'replace_illiterate': 'mode'},
-                 default={'replace_yes': 'unknown'}
+                 default={'replace_yes': 'unknown'},
+                 loan={'replace_unknown': False},
+                 month={'drop': True},
+                 pdays={'replace_999': False},
+                 emp_var_rate={'drop': False},
+                 cons_price_idx={'drop': False},
+                 cons_conf_idx={'drop': False},
+                 nr_employed={'drop': False}
                  ):
 
         self.job = job
         self.marital = marital
         self.education = education
+        self.default = default
+        self.loan = loan
+        self.month = month
+        self.pdays = pdays
+        self.emp_var_rate = emp_var_rate
+        self.cons_price_idx = cons_price_idx
+        self.cons_conf_idx = cons_conf_idx
+        self.nr_employed = nr_employed
 
     def fit(self, X, y, **fit_params):
         self.job_mode = X['job'].mode().values[0]
@@ -31,11 +46,21 @@ class CustomTransformer(TransformerMixin):
 
         self.default_categories = set(X['default'].unique())
 
+        self.loan_categories = set(X['loan'].unique())
+
+        self.contact_categories = set(X['contact'].unique())
+
+        self.doy_categories = set(X['day_of_week'].unique())
+
+        self.poutcome_categories = set(X['poutcome'])
+
+        return self
+
     def transform(self, X, **trans_params):
         X = X.copy()
 
         # input data should not contain any NA's
-        assert X.insa().sum().sum() == 0
+        assert X.isna().sum().sum() == 0
 
         # age
         assert (X['age'] >= 0).all()
@@ -71,19 +96,84 @@ class CustomTransformer(TransformerMixin):
         elif not self.education['replace_unknown']:
             pass
         else:
-            raise NameError("Unknown config for martial['replace_unknown']")
+            raise NameError("Unknown config for education['replace_unknown']")
 
         if self.education['replace_illiterate'] == 'mode':
             X['education'].replace({'illiterate': self.education_mode})
         else:
-            raise NameError("Unknown config for martial['replace_illiterate']")
+            raise NameError("Unknown config for education['replace_illiterate']")
 
         # default
         assert (set(X['default'].unique()) - self.default_categories) == set()
 
-        if self.education['replace_yes'] == 'unknown':
+        if self.default['replace_yes'] == 'unknown':
             X['default'].replace({'yes': 'unknown'})
         else:
-            raise NameError("Unknown config for martial['replace_illiterate']")
+            raise NameError("Unknown config for default['replace_yes']")
+
+        # loan
+        assert (set(X['loan'].unique()) - self.loan_categories) == set()
+
+        if not self.loan['replace_unknown']:
+            pass
+        else:
+            raise NameError("Unknown config for loan['replace_unknown']")
+
+        # contact
+        assert (set(X['contact'].unique()) - self.contact_categories) == set()
+
+        # month
+        if self.month['drop']:
+            X = X.drop(columns=['month'])
+        else:
+            pass
+
+        # day_of_week
+        assert (set(X['day_of_week'].unique()) - self.doy_categories) == set()
+
+        # campaign
+        assert (X['campaign'] >= 0).all()
+
+        # pdays
+        assert (X['pdays'] >= 0).all()
+
+        if not self.pdays['replace_999']:
+            pass
+        elif self.pdays['replace_999'] == '-1':
+            X['pdays'] = X['pdays'].replace({999, -1})
+        else:
+            raise NameError("Unknown config for loan['replace_unknown']")
+
+        # previous
+        assert (X['previous'] >= 0).all()
+
+        # poutcome
+        assert (set(X['poutcome'].unique()) - self.poutcome_categories) == set()
+
+        drop_cols = []
+
+        # cons.conf.idx
+        if self.cons_conf_idx['drop']:
+            drop_cols.append('cons.conf.idx')
+
+        # emp.var.rate
+        if self.emp_var_rate['drop']:
+            drop_cols.append('emp.var.rate')
+
+        # cons.price.idx
+        if self.cons_price_idx['drop']:
+            drop_cols.append('cons.price.idx')
+
+        # cons.conf.idx
+        if self.cons_conf_idx['drop']:
+            drop_cols.append('cons.conf.idx')
+
+        # euribor3m
+
+        # nr.employed
+        if self.cons_conf_idx['drop']:
+            drop_cols.append('cons.conf.idx')
+
+        X = X.drop(columns=drop_cols)
 
         return X
