@@ -66,7 +66,7 @@ data.isna().sum()
 cat_cols = data.dtypes[data.dtypes == 'object'].index
 
 # %%
-px.bar(data[cat_cols].nunique(), labels={'index': '', 'value': '#classes'}).show()
+px.bar(data[cat_cols].nunique(), labels={'index': '', 'value': '#classes'}).show("png")
 
 # %%
 for col in cat_cols:

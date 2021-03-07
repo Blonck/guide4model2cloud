@@ -100,13 +100,13 @@ data[data['age'] > 60]['y'].mean()/data['y'].mean()
 px.bar(
     data['job'].value_counts(normalize=True),
     labels={'value': 'count', 'index': 'job'}
-)
+).show("png")
 
 # %%
 px.bar(
     data.groupby(['job'])['y'].mean(),
     labels={'value': 'prob'},
-).show()
+).show("png")
 
 # %% [markdown]
 # ## marital
@@ -120,7 +120,7 @@ data['marital'].value_counts()
 px.bar(
     data.groupby(['marital'])['y'].mean(),
     labels={'value': 'prob'},
-).show()
+).show("png")
 
 # %% [markdown]
 # ## education
@@ -134,7 +134,7 @@ data['education'].value_counts()
 px.bar(
     data.groupby(['education'])['y'].mean(),
     labels={'value': 'prob'},
-).show()
+).show("png")
 
 # %% [markdown]
 # ## default
@@ -148,7 +148,7 @@ data['default'].value_counts()
 px.bar(
     data.groupby(['default'])['y'].mean(),
     labels={'value': 'prob'},
-).show()
+).show("png")
 
 # %% [markdown]
 # ## loan
@@ -163,7 +163,7 @@ data['loan'].value_counts()
 px.bar(
     data.groupby(['loan'])['y'].mean(),
     labels={'value': 'prob'},
-).show()
+).show("png")
 
 # %% [markdown]
 # ## contact
@@ -177,7 +177,7 @@ data['contact'].value_counts()
 px.bar(
     data.groupby(['contact'])['y'].mean(),
     labels={'value': 'prob'},
-).show()
+).show("png")
 
 # %% [markdown]
 # ## month
@@ -190,13 +190,13 @@ px.bar(
 px.bar(
     data['month'].value_counts().reindex(['mar', 'apr', 'may', 'jun', 'jul', 'sep', 'oct', 'nov', 'dec']),
     labels={'value': 'count', 'index': ''}
-)
+).show("png")
 
 # %%
 px.bar(
     data.groupby(['month'])['y'].mean().reindex(['mar', 'apr', 'may', 'jun', 'jul', 'sep', 'oct', 'nov', 'dec']),
     labels={'value': 'prob'},
-).show()
+).show("png")
 
 # %%
 data['month'].value_counts().to_frame('COUNT').join(
@@ -227,7 +227,7 @@ data['day_of_week'].value_counts()
 px.bar(
     data.groupby(['day_of_week'])['y'].mean(),
     labels={'value': 'prob'},
-).show()
+).show("png")
 
 # %% [markdown]
 # ## campaign
@@ -270,7 +270,7 @@ data['poutcome'].value_counts()
 px.bar(
     data.groupby(['poutcome'])['y'].mean(),
     labels={'value': 'prob'},
-).show()
+).show("png")
 
 # %% [markdown]
 # ## social and economic context attributes
@@ -303,7 +303,7 @@ data.groupby('cons.price.idx')['y'].mean().to_frame().join(
 )
 
 # %%
-px.scatter(data.groupby('cons.price.idx')['y'].mean())
+px.scatter(data.groupby('cons.price.idx')['y'].mean()).show("png")
 
 # %%
 data.groupby('y')['cons.price.idx'].hist(bins=10, alpha=0.5, density=True);
