@@ -82,7 +82,7 @@ class CustomTransformer(TransformerMixin):
         assert (set(X['marital'].unique()) - self.marital_categories) == set()
 
         if self.marital['replace_unknown'] == 'mode':
-            X['marital'].replace({'unknown': self.marital_mode})
+            X['marital'] = X['marital'].replace({'unknown': self.marital_mode})
         elif not self.marital['replace_unknown']:
             pass
         else:
@@ -92,14 +92,14 @@ class CustomTransformer(TransformerMixin):
         assert (set(X['education'].unique()) - self.education_categories) == set()
 
         if self.education['replace_unknown'] == 'mode':
-            X['education'].replace({'unknown': self.education_mode})
+            X['education'] = X['education'].replace({'unknown': self.education_mode})
         elif not self.education['replace_unknown']:
             pass
         else:
             raise NameError("Unknown config for education['replace_unknown']")
 
         if self.education['replace_illiterate'] == 'mode':
-            X['education'].replace({'illiterate': self.education_mode})
+            X['education'] = X['education'].replace({'illiterate': self.education_mode})
         else:
             raise NameError("Unknown config for education['replace_illiterate']")
 
@@ -107,7 +107,7 @@ class CustomTransformer(TransformerMixin):
         assert (set(X['default'].unique()) - self.default_categories) == set()
 
         if self.default['replace_yes'] == 'unknown':
-            X['default'].replace({'yes': 'unknown'})
+            X['default'] = X['default'].replace({'yes': 'unknown'})
         else:
             raise NameError("Unknown config for default['replace_yes']")
 
@@ -140,7 +140,7 @@ class CustomTransformer(TransformerMixin):
         if not self.pdays['replace_999']:
             pass
         elif self.pdays['replace_999'] == '-1':
-            X['pdays'] = X['pdays'].replace({999, -1})
+            X['pdays'] = X['pdays'].replace({999: -1})
         else:
             raise NameError("Unknown config for loan['replace_unknown']")
 
@@ -169,10 +169,11 @@ class CustomTransformer(TransformerMixin):
             drop_cols.append('cons.conf.idx')
 
         # euribor3m
+        # drop not useful
 
         # nr.employed
-        if self.cons_conf_idx['drop']:
-            drop_cols.append('cons.conf.idx')
+        if self.nr_employed['drop']:
+            drop_cols.append('nr.employed')
 
         X = X.drop(columns=drop_cols)
 
