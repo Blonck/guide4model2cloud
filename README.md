@@ -30,7 +30,7 @@ The complete guide contains:
     3. [x] Docker image
 3. [x] Setting up data pipelines via DVC [https://dvc.org/]
 4. [x] Exploring the data
-5. [TODO] Trying different models and tune hyperparameters via optuna [https://optuna.org/]
+5. [x] Trying different models and tune hyperparameters via optuna [https://optuna.org/]
 6. [TODO] Setting up tests
 7. [TODO] Improve FastAPI application
 8. [TODO] Deploying the model to
@@ -426,7 +426,6 @@ to convert `data/bank-additional-full.csv` into `data/bank-additional-full.parqu
 
 # Exploring the data
 
-
 So enough of all the annoying but necessary trivia, back to the real "Data
 Science" work. For a real improvement of the model, we need to understand the
 data better. Of course, the process of understanding
@@ -488,3 +487,15 @@ much in the dataset a model could learn from.
 
 # Trying different models and tune hyperparameters via optuna [https://optuna.org/]
 
+## Choosing a metric
+
+Before building a production-ready model, one needs to decide which performance
+metric to use to evaluate the model. Especially on an imbalanced dataset, it
+could be hard to balance recall and precision. Long story short, here, I
+use the average precision score, which optimizes the area under the
+precision-recall curve. Finally, this would allow balancing precision and
+recall to the actual needs.
+
+## Preprocessing
+
+## Optuna

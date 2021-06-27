@@ -36,6 +36,9 @@ assert set(data.columns) == set(['age', 'job', 'marital', 'education', 'default'
 data = data.drop(columns=['duration'])
 
 # %%
+data.info()
+
+# %%
 # convert strings in categorical variables
 cat_cols = data.dtypes[data.dtypes == 'object'].index
 

@@ -73,7 +73,7 @@ class CustomTransformer(TransformerMixin):
         if self.job['replace_unknown'] == 'mode':
             X['job'] = X['job'].replace({'unknown': self.job_mode})
         elif not self.job['replace_unknown']:
-            # CAUTION: may be not possibel, since unknown has only 80 samples in training set
+            # CAUTION: may be not possible, since unknown has only 80 samples in training set
             pass
         else:
             raise NameError("Unknown config for job['replace_unknown']")
